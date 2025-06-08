@@ -1,0 +1,4505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BioMonetize - Advanced Link in Bio Builder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      :root {
+            --primary: #6c63ff;
+            --primary-dark: #5651d9;
+            --secondary: #ff6584;
+            --accent: #6ab7ff;
+            --success: #2ecc71;
+            --warning: #ff9a3c;
+            --dark: #2b2d42;
+            --darker: #1d1f2e;
+            --light: #f8f9fa;
+            --lighter: #ffffff;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --medium-gray: #ced4da;
+            --dark-gray: #495057;
+            --transition: all 0.3s ease;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 30px rgba(0,0,0,0.12);
+            --shadow-large: 0 15px 50px rgba(0,0,0,0.15);
+            --border-radius: 12px;
+            --border-radius-sm: 8px;
+            --border-radius-lg: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            color: var(--dark);
+            background-color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)), 
+                        radial-gradient(circle at bottom left, rgba(108, 99, 255, 0.05), rgba(255, 255, 255, 0));
+            z-index: -1;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 30px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            font-size: 1rem;
+            box-shadow: var(--shadow);
+            white-space: nowrap;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-accent {
+            background: var(--secondary);
+            border-color: var(--secondary);
+        }
+
+        .btn-accent:hover {
+            background: #ff4d71;
+        }
+
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            border-color: var(--warning);
+        }
+
+        section {
+            padding: 100px 0;
+            position: relative;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            margin-right: 8px;
+            color: var(--secondary);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 30px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .mobile-toggle {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .hero {
+            padding: 180px 0 100px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            opacity: 0.2;
+            z-index: -1;
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 600px;
+            padding-right: 30px;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero h1 span {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .hero h1 span::after {
+            content: "";
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            height: 15px;
+            background: rgba(108, 99, 255, 0.2);
+            z-index: -1;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--gray);
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            flex: 1;
+            position: relative;
+        }
+
+        .hero-image-inner {
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-hover);
+            transform: perspective(1000px) rotateY(-5deg);
+            transition: var(--transition);
+        }
+
+        .hero-image-inner:hover {
+            transform: perspective(1000px) rotateY(0deg);
+        }
+
+        .hero-image img {
+            width: 100%;
+            display: block;
+            transition: var(--transition);
+        }
+
+        .hero-stats {
+            display: flex;
+            margin-top: 40px;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .stat-text {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        .editor-container {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-hover);
+            padding: 30px;
+            margin: 50px 0;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .editor-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .editor-tab {
+            padding: 10px 20px;
+            background: var(--light-gray);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .editor-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .editor-content {
+            display: flex;
+            gap: 30px;
+            flex-direction: column;
+        }
+
+        .editor-form {
+            flex: 1;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .form-section h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2rem;
+        }
+
+        .form-section h3 i {
+            color: var(--primary);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 0;
+        }
+
+        .service-item {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+
+        .remove-service {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--secondary);
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .remove-service:hover {
+            background: rgba(255, 101, 132, 0.1);
+        }
+
+        .editor-preview {
+            flex: 1;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+            min-height: 500px;
+            background: #fafafa;
+        }
+
+        .preview-container {
+            height: 100%;
+            overflow: auto;
+            padding: 20px;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .bio-preview {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .bio-header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 30px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .bio-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 4px solid white;
+            margin: 0 auto 15px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .bio-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .bio-title {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .bio-links {
+            padding: 20px;
+        }
+
+        .bio-link {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: var(--light);
+            border-radius: var(--border-radius-sm);
+            text-decoration: none;
+            color: var(--dark);
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+        }
+
+        .bio-link:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--primary);
+        }
+
+        .bio-link i {
+            width: 30px;
+            text-align: center;
+            margin-right: 12px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .bio-link-content {
+            flex: 1;
+        }
+
+        .bio-link-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .bio-link-desc {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+
+        .bio-link-price {
+            background: var(--success);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .bio-social {
+            display: flex;
+            justify-content: center;
+            padding: 15px;
+            gap: 15px;
+        }
+
+        .bio-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .bio-social a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .editor-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .templates-section {
+            background: linear-gradient(to bottom, #f0f4ff, #ffffff);
+        }
+
+        .template-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 20px;
+        }
+
+        .template-card {
+            border: 2px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .template-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .template-card.active {
+            border-color: var(--primary);
+            box-shadow: 0 5px 25px rgba(108, 99, 255, 0.25);
+        }
+
+        .template-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .template-card h4 {
+            padding: 15px;
+            text-align: center;
+            background: white;
+        }
+
+        .template-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--success);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .template-tags {
+            display: flex;
+            gap: 5px;
+            padding: 0 15px 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .template-tag {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+
+        .account-section {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 30px;
+        }
+
+        .dashboard-nav {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .dashboard-nav ul {
+            list-style: none;
+        }
+
+        .dashboard-nav li {
+            margin-bottom: 10px;
+        }
+
+        .dashboard-nav a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: var(--transition);
+        }
+
+        .dashboard-nav a:hover,
+        .dashboard-nav a.active {
+            background: rgba(108, 99, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .dashboard-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .sites-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .site-card {
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .site-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .site-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .site-card-body {
+            padding: 15px;
+        }
+
+        .site-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .deploy-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 10px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-published {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .status-draft {
+            background: rgba(255, 101, 132, 0.2);
+            color: var(--secondary);
+        }
+
+        .pricing-section {
+            background: linear-gradient(to bottom, #ffffff, #f0f4ff);
+        }
+
+        .pricing-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            padding: 40px 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .pricing-card.popular {
+            border: 2px solid var(--primary);
+            transform: scale(1.03);
+            z-index: 1;
+        }
+
+        .pricing-card.popular:hover {
+            transform: scale(1.06) translateY(-5px);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--primary);
+            color: white;
+            padding: 5px 30px;
+            transform: rotate(45deg);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .pricing-header {
+            margin-bottom: 25px;
+        }
+
+        .pricing-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .pricing-price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+
+        .pricing-price span {
+            font-size: 1rem;
+            color: var(--gray);
+        }
+
+        .pricing-features {
+            list-style: none;
+            margin: 25px 0;
+            text-align: left;
+        }
+
+        .pricing-features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pricing-features li i {
+            color: var(--success);
+        }
+
+        .editor-workspace {
+            display: flex;
+            height: 600px;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .components-panel {
+            width: 250px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+        }
+
+        .components-panel h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .component {
+            background: var(--light);
+            border-radius: var(--border-radius-sm);
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            cursor: move;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .component:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .editor-canvas-container {
+            flex: 1;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .canvas-toolbar {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            gap: 10px;
+        }
+
+        .editor-canvas {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .section-item {
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .section-item:hover {
+            border-color: var(--primary);
+        }
+
+        .section-item.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .section-action {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            background: var(--light-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .section-action:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .properties-panel {
+            width: 300px;
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            overflow-y: auto;
+        }
+
+        .properties-panel h4 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .placeholder {
+            color: var(--gray);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .ecommerce-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .ecommerce-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .ecommerce-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .ecommerce-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .section-title-center {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .section-title-center h2 {
+            font-size: 2.5rem;
+            display: inline-block;
+        }
+
+        .section-title-center h2::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--light-gray);
+            margin: 40px 0;
+        }
+
+        .template-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 15px;
+            background: var(--light-gray);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.9rem;
+        }
+
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .template-search {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .template-search input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .template-search button {
+            padding: 0 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            cursor: pointer;
+        }
+
+        .template-categories {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .category-card {
+            min-width: 200px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            position: relative;
+            cursor: pointer;
+        }
+
+        .category-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        .category-card h4 {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            margin: 0;
+        }
+
+        .monetization-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .monetization-option {
+            background: white;
+            border-radius: var(--border-radius-sm);
+            padding: 15px;
+            cursor: pointer;
+            border: 2px solid var(--light-gray);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .monetization-option:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .monetization-option i {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .monetization-option h4 {
+            margin-bottom: 5px;
+        }
+
+        .monetization-option p {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+
+        .lock-icon {
+            color: var(--warning);
+        }
+
+        .premium-badge {
+            background: var(--warning);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        /* Advanced Editor Styles */
+        .drag-over {
+            border: 2px dashed var(--primary);
+            background-color: rgba(108, 99, 255, 0.05);
+        }
+        
+        .drag-helper {
+            position: absolute;
+            background: white;
+            border: 2px dashed var(--primary);
+            border-radius: var(--border-radius);
+            z-index: 1000;
+            opacity: 0.8;
+            pointer-events: none;
+            box-shadow: var(--shadow-large);
+        }
+        
+        .component-library {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .library-item {
+            background: var(--light);
+            border-radius: var(--border-radius-sm);
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid var(--light-gray);
+        }
+        
+        .library-item:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+        }
+        
+        .library-item i {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .theme-selector {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .theme-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid transparent;
+        }
+        
+        .theme-option.active {
+            border-color: var(--dark);
+            transform: scale(1.1);
+        }
+        
+        .analytics-chart-container {
+            height: 250px;
+            margin: 20px 0;
+            position: relative;
+        }
+        
+        .analytics-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-select {
+            padding: 8px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            background: white;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .export-btn {
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: 'Poppins', sans-serif;
+            transition: var(--transition);
+        }
+        
+        .export-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        
+        .link-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .link-stat:hover {
+            background: var(--light);
+        }
+        
+        .link-stat-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Drag and drop enhancements */
+        .dragging {
+            opacity: 0.5;
+            transform: scale(0.95);
+            box-shadow: 0 0 15px rgba(108, 99, 255, 0.3);
+        }
+        
+        .drop-area {
+            height: 20px;
+            background: rgba(108, 99, 255, 0.1);
+            border-radius: var(--border-radius);
+            margin: 5px 0;
+            transition: height 0.2s ease;
+        }
+        
+        .drop-area.active {
+            height: 40px;
+            background: rgba(108, 99, 255, 0.2);
+        }
+        
+        /* Animation for drag operations */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(108, 99, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(108, 99, 255, 0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .editor-workspace {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .components-panel, .properties-panel {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .hero-content {
+                flex-direction: column;
+            }
+            
+            .hero-text {
+                max-width: 100%;
+                padding-right: 0;
+                text-align: center;
+                margin-bottom: 50px;
+            }
+            
+            .hero-btns {
+                justify-content: center;
+            }
+            
+            .hero-stats {
+                justify-content: center;
+            }
+            
+            .editor-content {
+                flex-direction: column;
+            }
+            
+            .editor-preview {
+                min-height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-toggle {
+                display: block;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 80px;
+                right: -100%;
+                width: 70%;
+                height: calc(100vh - 80px);
+                background: white;
+                flex-direction: column;
+                align-items: center;
+                padding-top: 40px;
+                transition: var(--transition);
+                box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .nav-links li {
+                margin: 15px 0;
+            }
+            
+            .hero h1 {
+                font-size: 2.8rem;
+            }
+            
+            .editor-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .editor-actions .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero-btns {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .hero-stats {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+
+        .fade-in.appear {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .scroll-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-top:hover {
+            background: var(--primary-dark);
+            transform: translateY(-5px);
+        }
+
+        .link-form {
+            background: white;
+            border-radius: var(--border-radius-sm);
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--light-gray);
+        }
+
+        .link-form-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .link-type-badge {
+            background: var(--light);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .link-type-donation {
+            background: rgba(255, 154, 60, 0.2);
+            color: var(--warning);
+        }
+
+        .link-type-product {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+
+        .link-type-booking {
+            background: rgba(108, 99, 255, 0.2);
+            color: var(--primary);
+        }
+
+        .link-type-content {
+            background: rgba(106, 183, 255, 0.2);
+            color: var(--accent);
+        }
+
+        .link-type-affiliate {
+            background: rgba(255, 101, 132, 0.2);
+            color: var(--secondary);
+        }
+        
+        .link-type-subscription {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+        }
+        
+        /* Modal and payment styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius-lg);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            position: relative;
+            box-shadow: var(--shadow-large);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .payment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .payment-amounts {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        
+        .amount-option {
+            padding: 10px 20px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .amount-option.selected {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .custom-amount {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .custom-amount input {
+            flex: 1;
+        }
+        
+        .stripe-element {
+            padding: 12px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+            background: white;
+        }
+        
+        .payment-success {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .payment-success i {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+        
+        .published-link {
+            background: var(--light);
+            border-radius: var(--border-radius-sm);
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+            word-break: break-all;
+        }
+        
+        .published-link a {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .analytics-chart {
+            height: 200px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+            gap: 5px;
+        }
+        
+        .chart-bar {
+            flex: 1;
+            background: var(--primary);
+            border-radius: var(--border-radius-sm) var(--border-radius-sm) 0 0;
+            position: relative;
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.8rem;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 20px;
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+        }
+        
+        .file-name {
+            font-size: 0.9rem;
+            margin-top: 10px;
+            color: var(--gray);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .user-menu {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .user-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 10px 0;
+            min-width: 200px;
+            display: none;
+            z-index: 1000;
+        }
+        
+        .user-menu:hover .user-dropdown {
+            display: block;
+        }
+        
+        .user-dropdown a {
+            display: block;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: var(--dark);
+            transition: var(--transition);
+        }
+        
+        .user-dropdown a:hover {
+            background: rgba(108, 99, 255, 0.1);
+        }
+        
+        .preview-link {
+            display: block;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--border-radius);
+            text-align: center;
+            text-decoration: none;
+            margin-top: 20px;
+            transition: var(--transition);
+        }
+        
+        .preview-link:hover {
+            background: var(--primary-dark);
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light-gray);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: var(--success);
+            color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            z-index: 2500;
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: var(--secondary);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: var(--light-gray);
+        }
+        
+        .template-preview {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .template-card:hover .template-preview {
+            opacity: 1;
+        }
+        
+        .preview-btn {
+            background: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+        }
+        
+        .template-detail {
+            display: none;
+            margin-top: 40px;
+        }
+        
+        .template-detail.active {
+            display: block;
+        }
+        
+        .template-screenshot {
+            width: 100%;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-large);
+        }
+        
+        .template-detail-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .color-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .color-option.active {
+            border-color: var(--dark);
+            transform: scale(1.1);
+        }
+        
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .analytics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Affiliate Program */
+        .affiliate-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            margin-top: 20px;
+        }
+        
+        .referral-link {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .referral-link input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius-sm);
+        }
+        
+        .commission-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 15px;
+        }
+        
+        .commission-stat {
+            text-align: center;
+            flex: 1;
+            padding: 15px;
+            background: var(--light);
+            border-radius: var(--border-radius);
+        }
+        
+        /* Booking Calendar */
+        .booking-calendar {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: var(--shadow);
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day {
+            padding: 10px;
+            text-align: center;
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+        }
+        
+        .calendar-day.available {
+            background: rgba(46, 204, 113, 0.2);
+        }
+        
+        .calendar-day.booked {
+            background: rgba(255, 101, 132, 0.2);
+            text-decoration: line-through;
+        }
+        
+        .calendar-day.selected {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Subscription Plans */
+        .subscription-plans {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .subscription-plan {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .subscription-plan:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+        
+        .subscription-plan h4 {
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin: 15px 0;
+            text-align: left;
+        }
+        
+        .plan-features li {
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .plan-features li i {
+            color: var(--success);
+        }
+        
+        /* Accessibility improvements */
+        a:focus, button:focus, input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
+        
+        /* Domain Management */
+        .domain-management {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .domain-list {
+            margin: 15px 0;
+        }
+        
+        .domain-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--light-gray);
+        }
+        
+        .domain-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        /* Pixel Integration */
+        .pixel-integration {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .pixel-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .pixel-option {
+            padding: 10px 15px;
+            background: var(--light);
+            border-radius: var(--border-radius-sm);
+            cursor: pointer;
+        }
+        
+        .pixel-option.active {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span id="notification-message">Operation completed successfully!</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <a href="#" class="logo">
+                    <i class="fas fa-link" aria-hidden="true"></i>BioMonetize
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#templates">Templates</a></li>
+                    <li><a href="#pricing">Pricing</a></li>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#monetize">Monetize</a></li>
+                    <li id="auth-buttons">
+                        <a href="#" class="btn btn-secondary" id="signin-btn">Sign In</a>
+                    </li>
+                    <li id="user-menu" class="user-menu" style="display: none;">
+                        <div class="user-avatar" aria-hidden="true">AJ</div>
+                        <span>Alex Johnson</span>
+                        <div class="user-dropdown">
+                            <a href="#dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+                            <a href="#"><i class="fas fa-user"></i> Account Settings</a>
+                            <a href="#"><i class="fas fa-wallet"></i> Billing</a>
+                            <a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </div>
+                    </li>
+                </ul>
+                <div class="mobile-toggle">
+                    <i class="fas fa-bars"></i>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Authentication Modal -->
+    <div class="modal" id="auth-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-auth-modal">&times;</span>
+            <h3 style="text-align: center;">Welcome to BioMonetize</h3>
+            
+            <div class="editor-tabs" style="justify-content: center; margin: 20px 0;">
+                <div class="editor-tab active" data-tab="signin">Sign In</div>
+                <div class="editor-tab" data-tab="signup">Sign Up</div>
+                <div class="editor-tab" data-tab="forgot">Reset Password</div>
+            </div>
+            
+            <div id="signin-form">
+                <div class="form-group">
+                    <label for="signin-email">Email</label>
+                    <input type="email" id="signin-email" class="form-control" placeholder="your@email.com" aria-label="Email address">
+                </div>
+                <div class="form-group">
+                    <label for="signin-password">Password</label>
+                    <input type="password" id="signin-password" class="form-control" placeholder="••••••••" aria-label="Password">
+                </div>
+                <div class="form-group" style="text-align: right;">
+                    <a href="#" id="show-forgot-password" style="font-size: 0.9rem;">Forgot password?</a>
+                </div>
+                <button class="btn" id="signin-submit">Sign In</button>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <p>Or sign in with</p>
+                    <div class="bio-social" style="justify-content: center; margin-top: 10px;">
+                        <a href="#" id="google-signin" aria-label="Sign in with Google"><i class="fab fa-google"></i></a>
+                        <a href="#" id="facebook-signin" aria-label="Sign in with Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" id="twitter-signin" aria-label="Sign in with Twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="signup-form" style="display: none;">
+                <div class="form-group">
+                    <label for="signup-name">Full Name</label>
+                    <input type="text" id="signup-name" class="form-control" placeholder="Alex Johnson" aria-label="Full name">
+                </div>
+                <div class="form-group">
+                    <label for="signup-email">Email</label>
+                    <input type="email" id="signup-email" class="form-control" placeholder="your@email.com" aria-label="Email address">
+                </div>
+                <div class="form-group">
+                    <label for="signup-password">Password</label>
+                    <input type="password" id="signup-password" class="form-control" placeholder="••••••••" aria-label="Create password">
+                </div>
+                <div class="form-group">
+                    <label for="signup-confirm">Confirm Password</label>
+                    <input type="password" id="signup-confirm" class="form-control" placeholder="••••••••" aria-label="Confirm password">
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="terms">
+                    <label for="terms" style="display: inline; font-weight: normal;">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+                </div>
+                <button class="btn" id="signup-submit">Create Account</button>
+            </div>
+            
+            <div id="forgot-form" style="display: none;">
+                <div class="reset-success" id="reset-success">
+                    <i class="fas fa-check-circle"></i>
+                    <p>Password reset email sent! Check your inbox.</p>
+                </div>
+                <div class="form-group">
+                    <label for="reset-email">Email</label>
+                    <input type="email" id="reset-email" class="form-control" placeholder="your@email.com" aria-label="Email address for password reset">
+                </div>
+                <button class="btn" id="reset-submit">Reset Password</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Modal -->
+    <div class="modal" id="payment-modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-payment-modal">&times;</span>
+            <div id="payment-form-container">
+                <h3 style="text-align: center;">Complete Payment</h3>
+                <p style="text-align: center; margin-bottom: 20px;">You're purchasing: <strong id="payment-item">Cinematic Presets Pack</strong></p>
+                
+                <div class="form-group">
+                    <label for="payment-email">Email for receipt</label>
+                    <input type="email" id="payment-email" class="form-control" value="customer@example.com" aria-label="Email for receipt">
+                </div>
+                
+                <div class="payment-amounts">
+                    <div class="amount-option" data-amount="5">$5</div>
+                    <div class="amount-option selected" data-amount="10">$10</div>
+                    <div class="amount-option" data-amount="20">$20</div>
+                    <div class="amount-option" data-amount="50">$50</div>
+                </div>
+                
+                <div class="custom-amount">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="custom-amount">Or custom amount</label>
+                        <input type="number" id="custom-amount" class="form-control" placeholder="Enter amount" aria-label="Custom amount">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="card-element">Card Information</label>
+                    <div id="card-element" class="stripe-element"></div>
+                </div>
+                
+                <button class="btn" id="submit-payment">Pay $<span id="payment-amount">10.00</span></button>
+                
+                <div style="text-align: center; margin-top: 20px; font-size: 0.9rem;">
+                    <i class="fas fa-lock"></i> Secure payment with Stripe
+                </div>
+            </div>
+            
+            <div id="payment-success" style="display: none;">
+                <div class="payment-success">
+                    <i class="fas fa-check-circle"></i>
+                    <h3>Payment Successful!</h3>
+                    <p>Thank you for your purchase. Your item is now available.</p>
+                    <button class="btn" id="close-payment-success">Continue</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Preview Modal -->
+    <div class="modal" id="preview-modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close-modal" id="close-preview-modal">&times;</span>
+            <h3 style="text-align: center;">Your Bio Link Preview</h3>
+            <p style="text-align: center; margin-bottom: 20px;">Share this link in your social media profiles</p>
+            
+            <div class="published-link">
+                <a href="#" id="bio-link-url">https://alexj.biomonetize.com</a>
+            </div>
+            
+            <div class="preview-container">
+                <div class="bio-preview">
+                    <div class="bio-header">
+                        <div class="bio-avatar" style="background-color: #6c63ff; display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; font-weight: bold;">AJ</div>
+                        <div class="bio-name">Alex Johnson</div>
+                        <div class="bio-title">Digital Creator | Helping others monetize their passions</div>
+                    </div>
+                    <div class="bio-links">
+                        <a href="#" class="bio-link">
+                            <i class="fab fa-youtube"></i>
+                            <div class="bio-link-content">
+                                <div class="bio-link-title">How I Made $5k Last Month</div>
+                                <div class="bio-link-desc">Watch my latest YouTube video</div>
+                            </div>
+                        </a>
+                        <a href="#" class="bio-link">
+                            <i class="fas fa-coffee"></i>
+                            <div class="bio-link-content">
+                                <div class="bio-link-title">Buy Me a Coffee</div>
+                                <div class="bio-link-desc">Support my content creation journey</div>
+                            </div>
+                            <div class="bio-link-price">Tip</div>
+                        </a>
+                        <a href="#" class="bio-link" id="preview-product-link">
+                            <i class="fas fa-shopping-bag"></i>
+                            <div class="bio-link-content">
+                                <div class="bio-link-title">Cinematic Presets Pack</div>
+                                <div class="bio-link-desc">10 professional Lightroom presets</div>
+                            </div>
+                            <div class="bio-link-price">$19.99</div>
+                        </a>
+                    </div>
+                    <div class="bio-social">
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="#" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="editor-actions">
+                <button class="btn btn-secondary" id="copy-link">
+                    <i class="fas fa-copy"></i> Copy Link
+                </button>
+                <a href="#" class="btn" id="view-live">
+                    <i class="fas fa-external-link-alt"></i> View Live
+                </a>
+                <button class="btn btn-accent" id="share-site">
+                    <i class="fas fa-share-alt"></i> Share
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Domain Modal -->
+    <div class="modal" id="domain-modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-modal" id="close-domain-modal">&times;</span>
+            <h3 style="text-align: center;">Custom Domain Setup</h3>
+            
+            <div class="form-group">
+                <label for="custom-domain">Your Custom Domain</label>
+                <input type="text" id="custom-domain" class="form-control" placeholder="yourname.com" aria-label="Custom domain">
+            </div>
+            
+            <div class="domain-management">
+                <h4>Current Domains</h4>
+                <div class="domain-list">
+                    <div class="domain-item">
+                        <span>alexj.biomonetize.com</span>
+                        <div class="domain-actions">
+                            <button class="btn btn-secondary">Edit</button>
+                            <button class="btn">Set Primary</button>
+                        </div>
+                    </div>
+                    <div class="domain-item">
+                        <span>creatives.biomonetize.com</span>
+                        <div class="domain-actions">
+                            <button class="btn btn-secondary">Edit</button>
+                            <button class="btn">Set Primary</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <p style="margin: 15px 0; font-size: 0.9rem;">
+                <i class="fas fa-info-circle"></i> To use your own domain, update your DNS settings to point to our servers. Detailed instructions will be provided after setup.
+            </p>
+            
+            <div class="editor-actions">
+                <button class="btn" id="save-domain">
+                    <i class="fas fa-save"></i> Save Domain
+                </button>
+                <button class="btn btn-secondary" id="connect-domain">
+                    <i class="fas fa-link"></i> Connect Existing Domain
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text fade-in">
+                    <h1>Monetize Your <span>Social Bio Links</span></h1>
+                    <p>Turn your social media bio into a revenue stream with BioMonetize. Create beautiful link pages, sell digital products, accept tips, and grow your business.</p>
+                    <div class="hero-btns">
+                        <a href="#editor" class="btn">Start Building Free</a>
+                        <a href="#templates" class="btn btn-secondary">View Creator Templates</a>
+                    </div>
+                    <div class="hero-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">25,000+</div>
+                            <div class="stat-text">Creators Earning</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">$1.2M+</div>
+                            <div class="stat-text">Paid to Creators</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">4.8/5</div>
+                            <div class="stat-text">Average Rating</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image fade-in">
+                    <div class="hero-image-inner">
+                        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'><rect width='600' height='400' fill='%236c63ff' opacity='0.1'/><rect x='100' y='50' width='400' height='300' rx='20' fill='white'/><circle cx='300' cy='100' r='50' fill='%236c63ff' opacity='0.3'/><rect x='200' y='180' width='200' height='20' rx='10' fill='%232b2d42' fill-opacity='0.7'/><rect x='200' y='220' width='160' height='15' rx='7' fill='%232b2d42' fill-opacity='0.4'/><rect x='150' y='260' width='300' height='10' rx='5' fill='%236c63ff' fill-opacity='0.3'/><rect x='150' y='280' width='300' height='10' rx='5' fill='%236c63ff' fill-opacity='0.3'/><rect x='150' y='300' width='250' height='10' rx='5' fill='%236c63ff' fill-opacity='0.3'/><rect x='150' y='330' width='120' height='40' rx='8' fill='%236c63ff'/><text x='185' y='355' fill='white' font-family='Arial' font-size='14'>Tip Me!</text></svg>" alt="Bio Monetization Example">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="templates-section">
+        <div class="container">
+            <div class="section-title-center fade-in">
+                <h2>Powerful Monetization Features</h2>
+                <p>Everything creators need to earn from their social media presence</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card fade-in">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-value">Tip Jar</div>
+                    <p>Accept one-time donations from your supporters</p>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-value">Digital Store</div>
+                    <p>Sell ebooks, presets, courses and digital products</p>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-value">Booking</div>
+                    <p>Get booked for consultations and services</p>
+                </div>
+                <div class="stat-card fade-in">
+                    <div class="stat-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="stat-value">Paywalled Content</div>
+                    <p>Offer exclusive content to paying supporters</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bio Link Editor -->
+    <section id="editor" class="editor">
+        <div class="container">
+            <div class="section-title fade-in">
+                <h2>Advanced Bio Link Editor</h2>
+                <p>Create your custom monetizable link in bio page</p>
+            </div>
+
+            <div class="editor-container fade-in">
+                <div class="editor-header">
+                    <h3><i class="fas fa-edit"></i> Bio Link Builder</h3>
+                    <div>
+                        <button class="btn btn-secondary" id="save-site">
+                            <i class="fas fa-save"></i> Save Draft
+                        </button>
+                        <button class="btn btn-success" id="preview-site">
+                            <i class="fas fa-sync-alt"></i> Preview
+                        </button>
+                    </div>
+                </div>
+
+                <div class="editor-tabs">
+                    <div class="editor-tab active" data-tab="content">Content</div>
+                    <div class="editor-tab" data-tab="design">Design</div>
+                    <div class="editor-tab" data-tab="monetization">Monetization</div>
+                    <div class="editor-tab" data-tab="analytics">Analytics</div>
+                    <div class="editor-tab" data-tab="settings">Settings</div>
+                </div>
+
+                <div class="editor-workspace">
+                    <div class="components-panel">
+                        <h4><i class="fas fa-shapes"></i> Components</h4>
+                        
+                        <div class="component-library">
+                            <div class="library-item" data-type="link">
+                                <i class="fas fa-link"></i>
+                                <div>Link</div>
+                            </div>
+                            <div class="library-item" data-type="donation">
+                                <i class="fas fa-donate"></i>
+                                <div>Tip Jar</div>
+                            </div>
+                            <div class="library-item" data-type="product">
+                                <i class="fas fa-shopping-bag"></i>
+                                <div>Product</div>
+                            </div>
+                            <div class="library-item" data-type="booking">
+                                <i class="fas fa-calendar-check"></i>
+                                <div>Booking</div>
+                            </div>
+                            <div class="library-item" data-type="video">
+                                <i class="fas fa-video"></i>
+                                <div>Video</div>
+                            </div>
+                            <div class="library-item" data-type="subscription">
+                                <i class="fas fa-star"></i>
+                                <div>Subscription</div>
+                            </div>
+                            <div class="library-item" data-type="countdown">
+                                <i class="fas fa-clock"></i>
+                                <div>Countdown</div>
+                            </div>
+                            <div class="library-item" data-type="testimonial">
+                                <i class="fas fa-comment"></i>
+                                <div>Testimonials</div>
+                            </div>
+                            <div class="library-item" data-type="social">
+                                <i class="fas fa-share-alt"></i>
+                                <div>Social Links</div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 20px;"><i class="fas fa-palette"></i> Themes</h4>
+                        <div class="theme-selector">
+                            <div class="theme-option active" style="background: #6c63ff;"></div>
+                            <div class="theme-option" style="background: #ff6584;"></div>
+                            <div class="theme-option" style="background: #2ecc71;"></div>
+                            <div class="theme-option" style="background: #ff9a3c;"></div>
+                            <div class="theme-option" style="background: #6ab7ff;"></div>
+                            <div class="theme-option" style="background: #2b2d42;"></div>
+                        </div>
+                    </div>
+
+                    <div class="editor-canvas-container">
+                        <div class="canvas-toolbar">
+                            <button class="btn btn-secondary" id="add-link">
+                                <i class="fas fa-plus"></i> Add Link
+                            </button>
+                            <button class="btn btn-secondary" id="change-theme">
+                                <i class="fas fa-palette"></i> Change Theme
+                            </button>
+                            <button class="btn btn-secondary" id="duplicate-section" style="display: none;">
+                                <i class="fas fa-copy"></i> Duplicate
+                            </button>
+                            <button class="btn btn-secondary" id="delete-section" style="display: none;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                        <div class="editor-canvas" id="editor-canvas">
+                            <div class="section-item" id="profile-section">
+                                <div class="link-form">
+                                    <div class="link-form-header">
+                                        <h4>Profile Header</h4>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Profile Photo</label>
+                                            <div class="upload-area" id="avatar-upload">
+                                                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+                                                <p>Click to upload profile photo</p>
+                                                <p class="file-name" id="avatar-name">No file selected</p>
+                                            </div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Cover Photo</label>
+                                            <div class="upload-area" id="cover-upload">
+                                                <input type="file" id="cover-input" accept="image/*" style="display: none;">
+                                                <p>Click to upload cover photo</p>
+                                                <p class="file-name" id="cover-name">No file selected</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Your Name</label>
+                                        <input type="text" class="form-control" id="profile-name" value="Alex Johnson" aria-label="Your name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Bio Description</label>
+                                        <textarea class="form-control" id="profile-bio" aria-label="Bio description">Digital Creator | Helping others monetize their passions</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section-item">
+                                <div class="link-form">
+                                    <div class="link-form-header">
+                                        <h4>Latest YouTube Video</h4>
+                                        <div class="link-type-badge">Basic Link</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Link Title</label>
+                                        <input type="text" class="form-control" value="How I Made $5k Last Month" aria-label="Link title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>URL</label>
+                                        <input type="text" class="form-control" value="https://youtube.com/my-video" aria-label="Link URL">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Icon</label>
+                                        <select class="form-control" aria-label="Link icon">
+                                            <option>YouTube</option>
+                                            <option>Instagram</option>
+                                            <option>TikTok</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section-item">
+                                <div class="link-form">
+                                    <div class="link-form-header">
+                                        <h4>Support My Work</h4>
+                                        <div class="link-type-badge link-type-donation">Tip Jar</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" class="form-control" value="Buy Me a Coffee" aria-label="Tip jar title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" class="form-control" value="Support my content creation journey" aria-label="Tip jar description">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Suggested Amounts</label>
+                                        <input type="text" class="form-control" value="$3, $5, $10" aria-label="Suggested tip amounts">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section-item">
+                                <div class="link-form">
+                                    <div class="link-form-header">
+                                        <h4>Lightroom Presets</h4>
+                                        <div class="link-type-badge link-type-product">Digital Product</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="product-name">Product Name</label>
+                                        <input type="text" class="form-control" id="product-name" value="Cinematic Presets Pack" aria-label="Product name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="product-desc">Description</label>
+                                        <input type="text" class="form-control" id="product-desc" value="10 professional Lightroom presets" aria-label="Product description">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="product-price">Price</label>
+                                            <input type="text" class="form-control" id="product-price" value="$19.99" aria-label="Product price">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>File</label>
+                                            <div class="upload-area" id="product-upload">
+                                                <input type="file" id="product-file" style="display: none;">
+                                                <p>Click to upload product file</p>
+                                                <p class="file-name" id="product-file-name">No file selected</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-secondary" id="test-payment">
+                                        <i class="fas fa-credit-card"></i> Test Payment Flow
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="section-item">
+                                <div class="link-form">
+                                    <div class="link-form-header">
+                                        <h4>1-on-1 Coaching</h4>
+                                        <div class="link-type-badge link-type-booking">Booking</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" class="form-control" value="Creative Coaching Session" aria-label="Booking title">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" class="form-control" value="30 min session to boost your content strategy" aria-label="Booking description">
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>Price</label>
+                                            <input type="text" class="form-control" value="$75" aria-label="Booking price">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Duration</label>
+                                            <select class="form-control" aria-label="Booking duration">
+                                                <option>30 minutes</option>
+                                                <option>60 minutes</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="booking-calendar">
+                                        <div class="calendar-header">
+                                            <h4>Available Times</h4>
+                                            <button class="btn btn-secondary">Sync Calendar</button>
+                                        </div>
+                                        <div class="calendar-grid">
+                                            <div class="calendar-day">Mon</div>
+                                            <div class="calendar-day">Tue</div>
+                                            <div class="calendar-day">Wed</div>
+                                            <div class="calendar-day">Thu</div>
+                                            <div class="calendar-day">Fri</div>
+                                            <div class="calendar-day">Sat</div>
+                                            <div class="calendar-day">Sun</div>
+                                            
+                                            <div class="calendar-day available">9 AM</div>
+                                            <div class="calendar-day available">10 AM</div>
+                                            <div class="calendar-day available">11 AM</div>
+                                            <div class="calendar-day booked">12 PM</div>
+                                            <div class="calendar-day available">1 PM</div>
+                                            <div class="calendar-day available">2 PM</div>
+                                            <div class="calendar-day available">3 PM</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="section-item">
+                                <div class="link-form">
+                                    <div class="link-form-header">
+                                        <h4>Premium Content</h4>
+                                        <div class="link-type-badge link-type-subscription">Subscription</div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Subscription Name</label>
+                                        <input type="text" class="form-control" value="Creator's Club" aria-label="Subscription name">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" class="form-control" value="Exclusive content, resources, and community" aria-label="Subscription description">
+                                    </div>
+                                    <div class="subscription-plans">
+                                        <div class="subscription-plan">
+                                            <h4>Monthly</h4>
+                                            <div class="plan-price">$9.99</div>
+                                            <ul class="plan-features">
+                                                <li><i class="fas fa-check"></i> Weekly content drops</li>
+                                                <li><i class="fas fa-check"></i> Community access</li>
+                                                <li><i class="fas fa-check"></i> Resource library</li>
+                                            </ul>
+                                            <button class="btn">Select Plan</button>
+                                        </div>
+                                        <div class="subscription-plan">
+                                            <h4>Annual</h4>
+                                            <div class="plan-price">$99</div>
+                                            <p>Save 20%</p>
+                                            <ul class="plan-features">
+                                                <li><i class="fas fa-check"></i> Everything in Monthly</li>
+                                                <li><i class="fas fa-check"></i> Exclusive workshops</li>
+                                                <li><i class="fas fa-check"></i> 1-on-1 feedback</li>
+                                            </ul>
+                                            <button class="btn">Select Plan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="properties-panel">
+                        <h4><i class="fas fa-sliders-h"></i> Link Settings</h4>
+                        <div class="form-section">
+                            <div class="form-group">
+                                <label for="link-title">Link Title</label>
+                                <input type="text" class="form-control" value="Cinematic Presets Pack" id="link-title" aria-label="Link title">
+                            </div>
+                            <div class="form-group">
+                                <label for="link-desc">Description</label>
+                                <textarea class="form-control" id="link-desc" aria-label="Link description">10 professional Lightroom presets for cinematic photos</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="link-type">Link Type</label>
+                                <select class="form-control" id="link-type" aria-label="Link type">
+                                    <option>Basic Link</option>
+                                    <option selected>Digital Product</option>
+                                    <option>Tip Jar</option>
+                                    <option>Booking Link</option>
+                                    <option>Subscription</option>
+                                    <option>Paywalled Content</option>
+                                    <option>Affiliate Link</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="link-icon">Icon</label>
+                                <select class="form-control" id="link-icon" aria-label="Link icon">
+                                    <option>Default</option>
+                                    <option>YouTube</option>
+                                    <option>Instagram</option>
+                                    <option>Shop</option>
+                                    <option>Coffee</option>
+                                    <option>Calendar</option>
+                                    <option>Star</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="bg-color">Background Color</label>
+                                <input type="color" class="form-control" value="#6c63ff" id="bg-color" aria-label="Background color">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="product-price">Price</label>
+                                    <input type="text" class="form-control" value="$19.99" id="product-price" aria-label="Product price">
+                                </div>
+                                <div class="form-group">
+                                    <label for="currency">Currency</label>
+                                    <select class="form-control" id="currency" aria-label="Currency">
+                                        <option>USD</option>
+                                        <option>EUR</option>
+                                        <option>GBP</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h4 style="margin-top: 30px;"><i class="fas fa-chart-line"></i> Analytics</h4>
+                        <div class="analytics-chart-container">
+                            <canvas id="analytics-chart"></canvas>
+                        </div>
+                        <div class="analytics-filters">
+                            <select class="filter-select" id="analytics-period">
+                                <option>Last 7 days</option>
+                                <option>Last 30 days</option>
+                                <option>Last 90 days</option>
+                                <option>All time</option>
+                            </select>
+                            <button class="export-btn" id="export-analytics">
+                                <i class="fas fa-download"></i> Export
+                            </button>
+                        </div>
+                        
+                        <h4 style="margin-top: 30px;"><i class="fas fa-cog"></i> Settings</h4>
+                        <div class="form-group">
+                            <label for="page-title">Page Title</label>
+                            <input type="text" class="form-control" id="page-title" value="Alex's Bio Links" aria-label="Page title">
+                        </div>
+                        <div class="form-group">
+                            <label for="page-description">Page Description</label>
+                            <textarea class="form-control" id="page-description" aria-label="Page description">Welcome to my link hub! Find all my content and products here.</textarea>
+                        </div>
+                        <button class="btn" id="manage-domains">
+                            <i class="fas fa-globe"></i> Manage Domains
+                        </button>
+                        
+                        <div class="pixel-integration">
+                            <h4><i class="fas fa-chart-pie"></i> Pixel Integration</h4>
+                            <p>Track conversions with analytics pixels</p>
+                            <div class="pixel-options">
+                                <div class="pixel-option">Facebook Pixel</div>
+                                <div class="pixel-option">Google Analytics</div>
+                                <div class="pixel-option">TikTok Pixel</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-actions">
+                    <button class="btn" id="preview-site-btn">
+                        <i class="fas fa-eye"></i> Preview
+                    </button>
+                    <button class="btn btn-secondary" id="download-site">
+                        <i class="fas fa-bolt"></i> Publish Free
+                    </button>
+                    <button class="btn btn-warning" id="go-premium">
+                        <i class="fas fa-crown"></i> Go Premium
+                    </button>
+                    <button class="btn btn-accent" id="publish-site">
+                        <i class="fas fa-share-alt"></i> Share Page
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Monetization Section -->
+    <section id="monetize" class="templates-section">
+        <div class="container">
+            <div class="section-title-center fade-in">
+                <h2>Monetization Options</h2>
+                <p>Multiple ways to earn from your audience</p>
+            </div>
+
+            <div class="monetization-options">
+                <div class="monetization-option fade-in">
+                    <i class="fas fa-donate"></i>
+                    <h4>Tip Jar</h4>
+                    <p>Accept one-time donations from supporters</p>
+                </div>
+                
+                <div class="monetization-option fade-in">
+                    <i class="fas fa-shopping-bag"></i>
+                    <h4>Digital Products</h4>
+                    <p>Sell ebooks, presets, courses and more</p>
+                </div>
+                
+                <div class="monetization-option fade-in">
+                    <i class="fas fa-calendar-check"></i>
+                    <h4>Booking Links</h4>
+                    <p>Get booked for consultations and services</p>
+                </div>
+                
+                <div class="monetization-option fade-in">
+                    <i class="fas fa-lock lock-icon"></i>
+                    <h4>Paywalled Content</h4>
+                    <p>Offer exclusive content to paying supporters</p>
+                    <div class="premium-badge">PREMIUM</div>
+                </div>
+                
+                <div class="monetization-option fade-in">
+                    <i class="fas fa-handshake"></i>
+                    <h4>Affiliate Links</h4>
+                    <p>Earn commissions on products you recommend</p>
+                </div>
+                
+                <div class="monetization-option fade-in">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <h4>Recurring Memberships</h4>
+                    <p>Create subscription content for loyal fans</p>
+                    <div class="premium-badge">PREMIUM</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Templates Section -->
+    <section id="templates" class="templates-section">
+        <div class="container">
+            <div class="section-title-center fade-in">
+                <h2>Creator Templates</h2>
+                <p>Professionally designed templates for every niche</p>
+            </div>
+
+            <div class="template-filter">
+                <div class="filter-btn active">All Templates</div>
+                <div class="filter-btn">Influencers</div>
+                <div class="filter-btn">Artists</div>
+                <div class="filter-btn">Coaches</div>
+                <div class="filter-btn">Podcasters</div>
+                <div class="filter-btn">Writers</div>
+            </div>
+
+            <div class="template-selector">
+                <!-- Template 1 -->
+                <div class="template-card active" data-template="influencer">
+                    <div class="template-badge">Popular</div>
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'><rect width='300' height='180' fill='%236c63ff' opacity='0.1'/><rect x='20' y='20' width='260' height='140' rx='5' fill='white'/><circle cx='150' cy='60' r='30' fill='%23ff6584'/><rect x='100' y='100' width='100' height='10' rx='5' fill='%232b2d42' fill-opacity='0.5'/><rect x='80' y='120' width='140' height='8' rx='4' fill='%232b2d42' fill-opacity='0.3'/></svg>" alt="Influencer Template">
+                    <h4>Influencer Pro</h4>
+                    <div class="template-tags">
+                        <div class="template-tag">Social Media</div>
+                        <div class="template-tag">Monetization</div>
+                    </div>
+                    <div class="template-preview">
+                        <a href="#" class="preview-btn">Preview Template</a>
+                    </div>
+                </div>
+                
+                <!-- Template 2 -->
+                <div class="template-card" data-template="artist">
+                    <div class="template-badge">Free</div>
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'><rect width='300' height='180' fill='%232b2d42' opacity='0.05'/><rect x='20' y='20' width='260' height='140' rx='5' fill='white'/><circle cx='80' cy='65' r='25' fill='%236ab7ff'/><rect x='120' y='50' width='120' height='15' rx='3' fill='%236c63ff'/><rect x='120' y='75' width='80' height='10' rx='2' fill='%232b2d42' fill-opacity='0.3'/></svg>" alt="Artist Template">
+                    <h4>Creative Artist</h4>
+                    <div class="template-tags">
+                        <div class="template-tag">Portfolio</div>
+                        <div class="template-tag">Minimal</div>
+                    </div>
+                    <div class="template-preview">
+                        <a href="#" class="preview-btn">Preview Template</a>
+                    </div>
+                </div>
+                
+                <!-- Template 3 -->
+                <div class="template-card" data-template="coach">
+                    <div class="template-badge">Premium</div>
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'><rect width='300' height='180' fill='%23ff6584' opacity='0.05'/><rect x='20' y='20' width='260' height='140' rx='5' fill='white'/><rect x='40' y='40' width='220' height='15' rx='3' fill='%23ff6584'/><rect x='40' y='70' width='60' height='60' rx='5' fill='%236c63ff' opacity='0.3'/><rect x='110' y='70' width='60' height='60' rx='5' fill='%236c63ff' opacity='0.3'/><rect x='180' y='70' width='60' height='60' rx='5' fill='%236c63ff' opacity='0.3'/></svg>" alt="Coach Template">
+                    <h4>Coach & Consultant</h4>
+                    <div class="template-tags">
+                        <div class="template-tag">Booking</div>
+                        <div class="template-tag">Services</div>
+                    </div>
+                    <div class="template-preview">
+                        <a href="#" class="preview-btn">Preview Template</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center fade-in" style="margin-top: 40px;">
+                <button class="btn">
+                    <i class="fas fa-th-large"></i> View All 50+ Templates
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <div class="section-title-center fade-in">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Start free, upgrade when you're ready to monetize</p>
+            </div>
+
+            <div class="pricing-plans">
+                <div class="pricing-card fade-in">
+                    <div class="pricing-header">
+                        <div class="pricing-name">Creator</div>
+                        <div class="pricing-price">$0<span>/month</span></div>
+                        <p>Perfect for getting started</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 1 Bio Link Page</li>
+                        <li><i class="fas fa-check"></i> 10 Links</li>
+                        <li><i class="fas fa-check"></i> Basic Templates</li>
+                        <li><i class="fas fa-check"></i> Basic Analytics</li>
+                        <li><i class="fas fa-times"></i> Monetization Features</li>
+                        <li><i class="fas fa-times"></i> Premium Support</li>
+                    </ul>
+                    <button class="btn btn-secondary">Get Started Free</button>
+                </div>
+                
+                <div class="pricing-card popular fade-in">
+                    <div class="popular-badge">MOST POPULAR</div>
+                    <div class="pricing-header">
+                        <div class="pricing-name">Pro Creator</div>
+                        <div class="pricing-price">$9<span>/month</span></div>
+                        <p>Everything to monetize your audience</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> Unlimited Pages</li>
+                        <li><i class="fas fa-check"></i> Unlimited Links</li>
+                        <li><i class="fas fa-check"></i> All Templates</li>
+                        <li><i class="fas fa-check"></i> Advanced Analytics</li>
+                        <li><i class="fas fa-check"></i> All Monetization Features</li>
+                        <li><i class="fas fa-check"></i> Priority Support</li>
+                    </ul>
+                    <button class="btn" id="start-trial">Start 14-Day Free Trial</button>
+                </div>
+                
+                <div class="pricing-card fade-in">
+                    <div class="pricing-header">
+                        <div class="pricing-name">Agency</div>
+                        <div class="pricing-price">$29<span>/month</span></div>
+                        <p>For agencies managing multiple creators</p>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><i class="fas fa-check"></i> 10 Creator Accounts</li>
+                        <li><i class="fas fa-check"></i> All Pro Features</li>
+                        <li><i class="fas fa-check"></i> White Label Branding</li>
+                        <li><i class="fas fa-check"></i> Team Collaboration</li>
+                        <li><i class="fas fa-check"></i> Custom Domain</li>
+                        <li><i class="fas fa-check"></i> Dedicated Support</li>
+                    </ul>
+                    <button class="btn btn-secondary">Get Started</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="account-section">
+        <div class="container">
+            <div class="section-title fade-in">
+                <h2>Creator Dashboard</h2>
+                <p>Manage your bio links, earnings, and analytics</p>
+            </div>
+
+            <div class="dashboard">
+                <div class="dashboard-nav">
+                    <h3>Account</h3>
+                    <ul>
+                        <li><a href="#" class="active"><i class="fas fa-th-large"></i> Dashboard</a></li>
+                        <li><a href="#"><i class="fas fa-link"></i> My Bio Links</a></li>
+                        <li><a href="#"><i class="fas fa-wallet"></i> Earnings</a></li>
+                        <li><a href="#"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                        <li><a href="#"><i class="fas fa-store"></i> Products</a></li>
+                        <li><a href="#"><i class="fas fa-user"></i> Account Settings</a></li>
+                    </ul>
+                    
+                    <div class="divider"></div>
+                    
+                    <h3 style="margin-top: 20px;">Monetization</h3>
+                    <ul>
+                        <li><a href="#"><i class="fas fa-donate"></i> Tip Jar</a></li>
+                        <li><a href="#"><i class="fas fa-shopping-bag"></i> Products</a></li>
+                        <li><a href="#"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+                        <li><a href="#"><i class="fas fa-lock"></i> Paywalled Content</a></li>
+                    </ul>
+                </div>
+
+                <div class="dashboard-content">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <h3><i class="fas fa-th-large"></i> Dashboard Overview</h3>
+                        </div>
+                        <div class="form-group" style="text-align: right;">
+                            <button class="btn" id="new-bio-link">
+                                <i class="fas fa-plus"></i> New Bio Link
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <div class="stat-value">1,254</div>
+                            <p>Views This Month</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-mouse-pointer"></i>
+                            </div>
+                            <div class="stat-value">324</div>
+                            <p>Clicks This Month</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-dollar-sign"></i>
+                            </div>
+                            <div class="stat-value">$287.50</div>
+                            <p>Earned This Month</p>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-percentage"></i>
+                            </div>
+                            <div class="stat-value">3.8%</div>
+                            <p>Conversion Rate</p>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 30px;">Monthly Performance</h4>
+                    <div class="analytics-chart-container">
+                        <canvas id="dashboard-chart"></canvas>
+                    </div>
+                    
+                    <h4 style="margin-top: 30px;">My Bio Link Pages</h4>
+                    <div class="sites-grid">
+                        <div class="site-card">
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'><rect width='300' height='180' fill='%236c63ff' opacity='0.1'/><rect x='20' y='20' width='260' height='140' rx='5' fill='white'/><circle cx='150' cy='60' r='30' fill='%23ff6584'/><rect x='100' y='100' width='100' height='10' rx='5' fill='%232b2d42' fill-opacity='0.5'/><rect x='80' y='120' width='140' height='8' rx='4' fill='%232b2d42' fill-opacity='0.3'/></svg>" alt="Bio Link">
+                            <div class="site-card-body">
+                                <h4>Main Bio Link</h4>
+                                <p>Created: Oct 12, 2023</p>
+                                <div class="deploy-status">
+                                    <span class="status-badge status-published">Published</span>
+                                    <span>alex.biomonetize.com</span>
+                                </div>
+                                <div class="site-actions">
+                                    <button class="btn btn-secondary">Edit</button>
+                                    <button class="btn">View</button>
+                                    <button class="btn btn-secondary">Analytics</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="site-card">
+                            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='180' viewBox='0 0 300 180'><rect width='300' height='180' fill='%232b2d42' opacity='0.05'/><rect x='20' y='20' width='260' height='140' rx='5' fill='white'/><circle cx='80' cy='65' r='25' fill='%236ab7ff'/><rect x='120' y='50' width='120' height='15' rx='3' fill='%236c63ff'/><rect x='120' y='75' width='80' height='10' rx='2' fill='%232b2d42' fill-opacity='0.3'/></svg>" alt="Bio Link">
+                            <div class="site-card-body">
+                                <h4>Podcast Resources</h4>
+                                <p>Created: Sep 28, 2023</p>
+                                <div class="deploy-status">
+                                    <span class="status-badge status-published">Published</span>
+                                    <span>podcast.biomonetize.com</span>
+                                </div>
+                                <div class="site-actions">
+                                    <button class="btn btn-secondary">Edit</button>
+                                    <button class="btn">View</button>
+                                    <button class="btn btn-secondary">Analytics</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h4 style="margin-top: 30px;">Recent Earnings</h4>
+                    <div class="service-item">
+                        <div class="form-row">
+                            <div><i class="fas fa-shopping-bag" style="color: var(--success);"></i> Sold "Lightroom Presets"</div>
+                            <div>+$19.99</div>
+                        </div>
+                    </div>
+                    <div class="service-item">
+                        <div class="form-row">
+                            <div><i class="fas fa-donate" style="color: var(--warning);"></i> Tip from @johnsmith</div>
+                            <div>+$10.00</div>
+                        </div>
+                    </div>
+                    <div class="service-item">
+                        <div class="form-row">
+                            <div><i class="fas fa-calendar-check" style="color: var(--primary);"></i> Coaching Session Booking</div>
+                            <div>+$75.00</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Affiliate Program -->
+                    <h4 style="margin-top: 40px;">Affiliate Program</h4>
+                    <div class="affiliate-card">
+                        <p>Earn 20% commission for every creator you refer to BioMonetize</p>
+                        <div class="referral-link">
+                            <input type="text" id="referral-link" value="https://biomonetize.com?ref=alexj" readonly aria-label="Referral link">
+                            <button id="copy-referral" class="btn">Copy</button>
+                        </div>
+                        
+                        <div class="commission-stats">
+                            <div class="commission-stat">
+                                <div class="stat-value">15</div>
+                                <p>Referrals</p>
+                            </div>
+                            <div class="commission-stat">
+                                <div class="stat-value">$287</div>
+                                <p>Earned</p>
+                            </div>
+                            <div class="commission-stat">
+                                <div class="stat-value">$1,435</div>
+                                <p>Total Revenue</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scroll to top button -->
+    <div class="scroll-top">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <script>
+        // Initialize Stripe
+        const STRIPE_KEY = 'pk_test_51P3XJdSFK1n7kHcI5fZ4T8J9g8z7R2eK4Xv6Yw8b9q3L7m1xVd5fB6h4j7k8l9m0n1o2p';
+        const stripe = Stripe(STRIPE_KEY);
+        const elements = stripe.elements();
+        let cardElement;
+        
+        // State management for the application
+        const appState = {
+            currentUser: null,
+            bioLink: {
+                title: "Alex Johnson's Bio",
+                profile: {
+                    name: "Alex Johnson",
+                    bio: "Digital Creator | Helping others monetize their passions",
+                    avatar: null,
+                    cover: null
+                },
+                links: [
+                    {
+                        id: 'link1',
+                        type: "basic",
+                        title: "How I Made $5k Last Month",
+                        url: "https://youtube.com/my-video",
+                        icon: "youtube",
+                        clicks: 120
+                    },
+                    {
+                        id: 'link2',
+                        type: "donation",
+                        title: "Buy Me a Coffee",
+                        description: "Support my content creation journey",
+                        amounts: "$3, $5, $10",
+                        earnings: 45.50
+                    },
+                    {
+                        id: 'link3',
+                        type: "product",
+                        title: "Cinematic Presets Pack",
+                        description: "10 professional Lightroom presets",
+                        price: "$19.99",
+                        file: null,
+                        sales: 12
+                    }
+                ],
+                analytics: {
+                    views: 1254,
+                    clicks: 324,
+                    earnings: 287.50
+                },
+                template: "influencer",
+                theme: {
+                    primaryColor: "#6c63ff",
+                    secondaryColor: "#ff6584",
+                    bgColor: "#ffffff",
+                    textColor: "#2b2d42"
+                },
+                status: "draft" // draft or published
+            },
+            templates: [
+                {
+                    id: "influencer",
+                    name: "Influencer Pro",
+                    tags: ["Social Media", "Monetization"]
+                },
+                {
+                    id: "artist",
+                    name: "Creative Artist",
+                    tags: ["Portfolio", "Minimal"]
+                },
+                {
+                    id: "coach",
+                    name: "Coach & Consultant",
+                    tags: ["Booking", "Services"]
+                }
+            ],
+            currentTemplate: "influencer",
+            sites: [
+                {
+                    id: "site1",
+                    title: "Main Bio Link",
+                    url: "alex.biomonetize.com",
+                    createdAt: "Oct 12, 2023",
+                    status: "published",
+                    views: 1254,
+                    clicks: 324,
+                    earnings: 287.50
+                },
+                {
+                    id: "site2",
+                    title: "Podcast Resources",
+                    url: "podcast.biomonetize.com",
+                    createdAt: "Sep 28, 2023",
+                    status: "published",
+                    views: 876,
+                    clicks: 215,
+                    earnings: 142.75
+                }
+            ]
+        };
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initStripe();
+            initEditor();
+            initDashboard();
+            setupEventListeners();
+            setupScrollAnimations();
+            setupNavigation();
+            initAnalytics();
+            initUploadCare();
+            setupAccessibility();
+            initDragAndDrop();
+            initCharts();
+        });
+
+        // Initialize Stripe elements
+        function initStripe() {
+            const style = {
+                base: {
+                    color: '#32325d',
+                    fontFamily: '"Poppins", sans-serif',
+                    fontSmoothing: 'antialiased',
+                    fontSize: '16px',
+                    '::placeholder': {
+                        color: '#aab7c4'
+                    }
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a'
+                }
+            };
+            
+            cardElement = elements.create('card', { style: style });
+            cardElement.mount('#card-element');
+        }
+
+        // Initialize UploadCare widgets
+        function initUploadCare() {
+            const uploadAreas = document.querySelectorAll('.upload-area');
+            uploadAreas.forEach(area => {
+                area.addEventListener('click', function() {
+                    const inputId = this.id + '-input';
+                    const fileNameId = this.id + '-name';
+                    const fileInput = document.getElementById(inputId);
+                    
+                    if (fileInput) {
+                        fileInput.click();
+                        
+                        fileInput.addEventListener('change', function() {
+                            if (this.files && this.files[0]) {
+                                const fileName = this.files[0].name;
+                                document.getElementById(fileNameId).textContent = fileName;
+                                document.getElementById(fileNameId).style.color = 'var(--success)';
+                                
+                                // Determine which file it is
+                                if (this.id === 'avatar-input') {
+                                    appState.bioLink.profile.avatar = fileName;
+                                } else if (this.id === 'cover-input') {
+                                    appState.bioLink.profile.cover = fileName;
+                                } else if (this.id === 'product-file') {
+                                    const linkId = area.dataset.linkId;
+                                    if (linkId) {
+                                        const link = appState.bioLink.links.find(l => l.id === linkId);
+                                        if (link) link.file = fileName;
+                                    }
+                                }
+                                
+                                showNotification("File uploaded successfully");
+                            }
+                        });
+                    }
+                });
+            });
+        }
+
+        // Initialize charts
+        function initCharts() {
+            // Editor analytics chart
+            const editorCtx = document.getElementById('analytics-chart').getContext('2d');
+            new Chart(editorCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Clicks',
+                        data: [65, 59, 80, 81, 56, 55, 40],
+                        backgroundColor: 'rgba(108, 99, 255, 0.5)',
+                        borderColor: 'rgba(108, 99, 255, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            // Dashboard chart
+            const dashboardCtx = document.getElementById('dashboard-chart').getContext('2d');
+            new Chart(dashboardCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [{
+                        label: 'Earnings',
+                        data: [120, 190, 150, 220, 180, 200, 250, 300, 280, 350, 400, 450],
+                        backgroundColor: 'rgba(108, 99, 255, 0.1)',
+                        borderColor: 'rgba(108, 99, 255, 1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize drag and drop
+        function initDragAndDrop() {
+            const componentsPanel = document.querySelector('.components-panel');
+            const editorCanvas = document.getElementById('editor-canvas');
+            const libraryItems = document.querySelectorAll('.library-item');
+            
+            // Setup draggable library items
+            libraryItems.forEach(item => {
+                item.setAttribute('draggable', true);
+                item.addEventListener('dragstart', handleDragStart);
+            });
+            
+            // Setup drop zones
+            editorCanvas.addEventListener('dragover', handleDragOver);
+            editorCanvas.addEventListener('drop', handleDrop);
+            editorCanvas.addEventListener('dragenter', handleDragEnter);
+            editorCanvas.addEventListener('dragleave', handleDragLeave);
+            
+            // Setup section selection
+            const sections = document.querySelectorAll('.section-item');
+            sections.forEach(section => {
+                section.addEventListener('click', function() {
+                    // Deselect all sections
+                    sections.forEach(s => s.classList.remove('selected'));
+                    // Select this section
+                    this.classList.add('selected');
+                    // Show section actions
+                    document.getElementById('duplicate-section').style.display = 'inline-flex';
+                    document.getElementById('delete-section').style.display = 'inline-flex';
+                });
+            });
+        }
+
+        function handleDragStart(e) {
+            e.dataTransfer.setData('text/plain', e.target.dataset.type);
+            e.dataTransfer.setData('component-type', e.target.dataset.type);
+            e.target.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            this.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            const type = e.dataTransfer.getData('component-type');
+            if (type) {
+                addNewLink(type);
+            }
+        }
+
+        // Editor functions
+        function initEditor() {
+            setupTemplateSelection();
+            setupEditorTabs();
+            setupLinkManagement();
+            setupThemeSelection();
+        }
+
+        function setupTemplateSelection() {
+            const templateCards = document.querySelectorAll('.template-card');
+            templateCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    templateCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    const templateId = card.dataset.template;
+                    appState.currentTemplate = templateId;
+                    appState.bioLink.template = templateId;
+                    showNotification(`Template changed to: ${card.querySelector('h4').textContent}`);
+                });
+            });
+        }
+
+        function setupEditorTabs() {
+            const editorTabs = document.querySelectorAll('.editor-tab');
+            editorTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    editorTabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Tab specific actions
+                    if(tab.dataset.tab === 'analytics') {
+                        renderAnalytics();
+                    }
+                });
+            });
+        }
+
+        function setupLinkManagement() {
+            document.getElementById('add-link').addEventListener('click', () => {
+                addNewLink('basic');
+            });
+            
+            // Setup duplicate section
+            document.getElementById('duplicate-section').addEventListener('click', () => {
+                const selected = document.querySelector('.section-item.selected');
+                if (selected) {
+                    const clone = selected.cloneNode(true);
+                    editorCanvas.insertBefore(clone, selected.nextSibling);
+                    showNotification("Section duplicated");
+                }
+            });
+            
+            // Setup delete section
+            document.getElementById('delete-section').addEventListener('click', () => {
+                const selected = document.querySelector('.section-item.selected');
+                if (selected && selected.id !== 'profile-section') {
+                    selected.remove();
+                    document.getElementById('duplicate-section').style.display = 'none';
+                    document.getElementById('delete-section').style.display = 'none';
+                    showNotification("Section deleted");
+                }
+            });
+        }
+
+        function addNewLink(type) {
+            const newLink = {
+                id: 'link' + Date.now(),
+                type: type,
+                title: `New ${type.charAt(0).toUpperCase() + type.slice(1)} Link`,
+                description: "",
+                url: "",
+                price: "",
+                amounts: "",
+                clicks: 0,
+                earnings: 0
+            };
+
+            appState.bioLink.links.push(newLink);
+            renderLink(newLink);
+            showNotification(`New link added: ${newLink.title}`);
+        }
+
+        function renderLink(link) {
+            const section = document.createElement('div');
+            section.className = 'section-item';
+            section.dataset.id = link.id;
+            
+            let linkContent = '';
+            let linkType = '';
+            
+            switch(link.type) {
+                case 'donation':
+                    linkType = 'link-type-donation';
+                    linkContent = `
+                        <div class="link-form">
+                            <div class="link-form-header">
+                                <h4>${link.title}</h4>
+                                <div class="link-type-badge ${linkType}">Tip Jar</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" class="form-control" value="${link.title}" onchange="updateLinkTitle(this, '${link.id}')" aria-label="Tip jar title">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" class="form-control" value="${link.description}" onchange="updateLinkDescription(this, '${link.id}')" aria-label="Tip jar description">
+                            </div>
+                            <div class="form-group">
+                                <label>Suggested Amounts</label>
+                                <input type="text" class="form-control" value="${link.amounts}" onchange="updateLinkAmounts(this, '${link.id}')" aria-label="Suggested tip amounts">
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'product':
+                    linkType = 'link-type-product';
+                    linkContent = `
+                        <div class="link-form">
+                            <div class="link-form-header">
+                                <h4>${link.title}</h4>
+                                <div class="link-type-badge ${linkType}">Digital Product</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <input type="text" class="form-control" value="${link.title}" onchange="updateLinkTitle(this, '${link.id}')" aria-label="Product name">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" class="form-control" value="${link.description}" onchange="updateLinkDescription(this, '${link.id}')" aria-label="Product description">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Price</label>
+                                    <input type="text" class="form-control" value="${link.price}" onchange="updateLinkPrice(this, '${link.id}')" aria-label="Product price">
+                                </div>
+                                <div class="form-group">
+                                    <label>File</label>
+                                    <div class="upload-area" id="product-upload-${link.id}" data-link-id="${link.id}">
+                                        <input type="file" id="product-file-${link.id}" style="display: none;">
+                                        <p>Click to upload product file</p>
+                                        <p class="file-name" id="product-file-name-${link.id}">No file selected</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary test-payment-btn" data-link-id="${link.id}">
+                                <i class="fas fa-credit-card"></i> Test Payment Flow
+                            </button>
+                        </div>
+                    `;
+                    break;
+                case 'video':
+                    linkType = 'link-type-content';
+                    linkContent = `
+                        <div class="link-form">
+                            <div class="link-form-header">
+                                <h4>${link.title}</h4>
+                                <div class="link-type-badge ${linkType}">Video</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Video Title</label>
+                                <input type="text" class="form-control" value="${link.title}" aria-label="Video title">
+                            </div>
+                            <div class="form-group">
+                                <label>Video URL</label>
+                                <input type="text" class="form-control" value="${link.url}" aria-label="Video URL">
+                            </div>
+                            <div class="form-group">
+                                <label>Thumbnail</label>
+                                <div class="upload-area">
+                                    <p>Upload video thumbnail</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'booking':
+                    linkType = 'link-type-booking';
+                    linkContent = `
+                        <div class="link-form">
+                            <div class="link-form-header">
+                                <h4>${link.title}</h4>
+                                <div class="link-type-badge ${linkType}">Booking</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" class="form-control" value="${link.title}" aria-label="Booking title">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" class="form-control" value="${link.description}" aria-label="Booking description">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Price</label>
+                                    <input type="text" class="form-control" value="${link.price}" aria-label="Booking price">
+                                </div>
+                                <div class="form-group">
+                                    <label>Duration</label>
+                                    <select class="form-control" aria-label="Booking duration">
+                                        <option>30 minutes</option>
+                                        <option>60 minutes</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="booking-calendar">
+                                <div class="calendar-header">
+                                    <h4>Available Times</h4>
+                                    <button class="btn btn-secondary">Sync Calendar</button>
+                                </div>
+                                <div class="calendar-grid">
+                                    <div class="calendar-day">Mon</div>
+                                    <div class="calendar-day">Tue</div>
+                                    <div class="calendar-day">Wed</div>
+                                    <div class="calendar-day">Thu</div>
+                                    <div class="calendar-day">Fri</div>
+                                    <div class="calendar-day">Sat</div>
+                                    <div class="calendar-day">Sun</div>
+                                    
+                                    <div class="calendar-day available">9 AM</div>
+                                    <div class="calendar-day available">10 AM</div>
+                                    <div class="calendar-day available">11 AM</div>
+                                    <div class="calendar-day booked">12 PM</div>
+                                    <div class="calendar-day available">1 PM</div>
+                                    <div class="calendar-day available">2 PM</div>
+                                    <div class="calendar-day available">3 PM</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'subscription':
+                    linkType = 'link-type-subscription';
+                    linkContent = `
+                        <div class="link-form">
+                            <div class="link-form-header">
+                                <h4>${link.title}</h4>
+                                <div class="link-type-badge ${linkType}">Subscription</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Subscription Name</label>
+                                <input type="text" class="form-control" value="${link.title}" aria-label="Subscription name">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" class="form-control" value="${link.description}" aria-label="Subscription description">
+                            </div>
+                            <div class="subscription-plans">
+                                <div class="subscription-plan">
+                                    <h4>Monthly</h4>
+                                    <div class="plan-price">$9.99</div>
+                                    <ul class="plan-features">
+                                        <li><i class="fas fa-check"></i> Weekly content drops</li>
+                                        <li><i class="fas fa-check"></i> Community access</li>
+                                        <li><i class="fas fa-check"></i> Resource library</li>
+                                    </ul>
+                                    <button class="btn">Select Plan</button>
+                                </div>
+                                <div class="subscription-plan">
+                                    <h4>Annual</h4>
+                                    <div class="plan-price">$99</div>
+                                    <p>Save 20%</p>
+                                    <ul class="plan-features">
+                                        <li><i class="fas fa-check"></i> Everything in Monthly</li>
+                                        <li><i class="fas fa-check"></i> Exclusive workshops</li>
+                                        <li><i class="fas fa-check"></i> 1-on-1 feedback</li>
+                                    </ul>
+                                    <button class="btn">Select Plan</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                default:
+                    linkContent = `
+                        <div class="link-form">
+                            <div class="link-form-header">
+                                <h4>${link.title}</h4>
+                                <div class="link-type-badge">Basic Link</div>
+                            </div>
+                            <div class="form-group">
+                                <label>Link Title</label>
+                                <input type="text" class="form-control" value="${link.title}" onchange="updateLinkTitle(this, '${link.id}')" aria-label="Link title">
+                            </div>
+                            <div class="form-group">
+                                <label>URL</label>
+                                <input type="text" class="form-control" value="${link.url}" onchange="updateLinkUrl(this, '${link.id}')" aria-label="Link URL">
+                            </div>
+                            <div class="form-group">
+                                <label>Icon</label>
+                                <select class="form-control" onchange="updateLinkIcon(this, '${link.id}')" aria-label="Link icon">
+                                    <option>Default</option>
+                                    <option>YouTube</option>
+                                    <option>Instagram</option>
+                                    <option>TikTok</option>
+                                </select>
+                            </div>
+                        </div>
+                    `;
+            }
+            
+            section.innerHTML = linkContent;
+            document.getElementById('editor-canvas').appendChild(section);
+            
+            // Reinitialize upload areas for the new section
+            initUploadCare();
+        }
+
+        function updateLinkTitle(input, id) {
+            const link = appState.bioLink.links.find(l => l.id === id);
+            if (link) {
+                link.title = input.value;
+                // Update header if exists
+                const header = input.closest('.link-form').querySelector('.link-form-header h4');
+                if (header) header.textContent = input.value;
+            }
+        }
+
+        function updateLinkDescription(input, id) {
+            const link = appState.bioLink.links.find(l => l.id === id);
+            if (link) link.description = input.value;
+        }
+
+        function updateLinkPrice(input, id) {
+            const link = appState.bioLink.links.find(l => l.id === id);
+            if (link) link.price = input.value;
+        }
+
+        function updateLinkUrl(input, id) {
+            const link = appState.bioLink.links.find(l => l.id === id);
+            if (link) link.url = input.value;
+        }
+
+        function updateLinkIcon(select, id) {
+            const link = appState.bioLink.links.find(l => l.id === id);
+            if (link) link.icon = select.value;
+        }
+
+        function updateLinkAmounts(input, id) {
+            const link = appState.bioLink.links.find(l => l.id === id);
+            if (link) link.amounts = input.value;
+        }
+
+        function setupThemeSelection() {
+            const colorOptions = document.querySelectorAll('.color-option');
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    colorOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const color = this.style.backgroundColor;
+                    appState.bioLink.theme.primaryColor = color;
+                    applyTheme();
+                });
+            });
+            
+            // Theme selector in the components panel
+            const themeOptions = document.querySelectorAll('.theme-option');
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    themeOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const color = this.style.backgroundColor;
+                    appState.bioLink.theme.primaryColor = color;
+                    applyTheme();
+                });
+            });
+        }
+
+        function applyTheme() {
+            const theme = appState.bioLink.theme;
+            document.documentElement.style.setProperty('--primary', theme.primaryColor);
+            // More theme application logic
+        }
+
+        // Dashboard functions
+        function initDashboard() {
+            document.getElementById('new-bio-link').addEventListener('click', () => {
+                // Reset bio link for a new one
+                appState.bioLink = {
+                    title: "New Bio Link",
+                    profile: {
+                        name: "",
+                        bio: "",
+                        avatar: null,
+                        cover: null
+                    },
+                    links: [],
+                    analytics: {
+                        views: 0,
+                        clicks: 0,
+                        earnings: 0
+                    },
+                    template: "influencer",
+                    theme: {
+                        primaryColor: "#6c63ff",
+                        secondaryColor: "#ff6584",
+                        bgColor: "#ffffff",
+                        textColor: "#2b2d42"
+                    },
+                    status: "draft"
+                };
+                
+                // Clear the editor
+                const canvas = document.getElementById('editor-canvas');
+                while (canvas.children.length > 1) {
+                    canvas.removeChild(canvas.lastChild);
+                }
+                
+                // Scroll to editor
+                document.querySelector('#editor').scrollIntoView({ behavior: 'smooth' });
+                showNotification("New bio link created");
+            });
+        }
+
+        // Analytics functions
+        function initAnalytics() {
+            // Generate random analytics data
+            appState.bioLink.links.forEach(link => {
+                if (!link.clicks) link.clicks = Math.floor(Math.random() * 100);
+                if (link.type === 'product' && !link.sales) link.sales = Math.floor(Math.random() * 10);
+                if (link.type === 'donation' && !link.earnings) link.earnings = Math.floor(Math.random() * 50);
+            });
+        }
+
+        function renderAnalytics() {
+            const analyticsTab = document.querySelector('[data-tab="analytics"]');
+            if (analyticsTab.classList.contains('active')) {
+                // This is handled by the chart initialization
+            }
+        }
+
+        // UI Utility functions
+        function showNotification(message, isError = false) {
+            const notification = document.getElementById('notification');
+            const messageElement = document.getElementById('notification-message');
+            
+            messageElement.textContent = message;
+            notification.className = isError ? 'notification error' : 'notification';
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.style.display = show ? 'flex' : 'none';
+        }
+
+        // Accessibility setup
+        function setupAccessibility() {
+            // Add aria-labels to all icons
+            document.querySelectorAll('i[aria-hidden]').forEach(icon => {
+                if (!icon.getAttribute('aria-label')) {
+                    const parent = icon.parentElement;
+                    if (parent.tagName === 'A' || parent.tagName === 'BUTTON') {
+                        const text = parent.textContent.trim();
+                        if (text) {
+                            parent.setAttribute('aria-label', text);
+                        }
+                    }
+                }
+            });
+        }
+
+        // Event listeners setup
+        function setupEventListeners() {
+            // Auth modal
+            document.getElementById('signin-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('auth-modal').classList.add('active');
+                document.getElementById('signin-form').style.display = 'block';
+                document.getElementById('signup-form').style.display = 'none';
+                document.getElementById('forgot-form').style.display = 'none';
+            });
+            
+            document.getElementById('close-auth-modal').addEventListener('click', () => {
+                document.getElementById('auth-modal').classList.remove('active');
+            });
+            
+            // Sign in/up tabs
+            document.querySelectorAll('.editor-tab[data-tab]').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabName = tab.dataset.tab;
+                    document.getElementById('signin-form').style.display = tabName === 'signin' ? 'block' : 'none';
+                    document.getElementById('signup-form').style.display = tabName === 'signup' ? 'block' : 'none';
+                    document.getElementById('forgot-form').style.display = tabName === 'forgot' ? 'block' : 'none';
+                    document.getElementById('reset-success').style.display = 'none';
+                });
+            });
+            
+            // Show forgot password form
+            document.getElementById('show-forgot-password').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.querySelectorAll('.editor-tab').forEach(t => t.classList.remove('active'));
+                document.querySelector('.editor-tab[data-tab="forgot"]').classList.add('active');
+                document.getElementById('signin-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'none';
+                document.getElementById('forgot-form').style.display = 'block';
+            });
+            
+            // Reset password
+            document.getElementById('reset-submit').addEventListener('click', async () => {
+                const email = document.getElementById('reset-email').value;
+                
+                if (email) {
+                    showLoading(true);
+                    // Simulate sending reset email
+                    setTimeout(() => {
+                        showLoading(false);
+                        document.getElementById('reset-success').style.display = 'block';
+                        showNotification("Password reset email sent");
+                    }, 1500);
+                } else {
+                    showNotification("Please enter your email", true);
+                }
+            });
+            
+            // Sign in submit
+            document.getElementById('signin-submit').addEventListener('click', async () => {
+                const email = document.getElementById('signin-email').value;
+                const password = document.getElementById('signin-password').value;
+                
+                if (email && password) {
+                    showLoading(true);
+                    // Simulate authentication
+                    setTimeout(() => {
+                        appState.currentUser = {
+                            id: 'user123',
+                            name: 'Alex Johnson',
+                            email: email,
+                            plan: 'pro'
+                        };
+                        document.getElementById('auth-modal').classList.remove('active');
+                        document.getElementById('user-menu').style.display = 'flex';
+                        document.getElementById('auth-buttons').style.display = 'none';
+                        document.querySelector('.user-avatar').textContent = 'AJ';
+                        showLoading(false);
+                        showNotification("Signed in successfully!");
+                    }, 1500);
+                }
+            });
+            
+            // Sign up submit
+            document.getElementById('signup-submit').addEventListener('click', async () => {
+                const name = document.getElementById('signup-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                const confirm = document.getElementById('signup-confirm').value;
+                const terms = document.getElementById('terms').checked;
+                
+                if (name && email && password && password === confirm && terms) {
+                    showLoading(true);
+                    // Simulate sign up
+                    setTimeout(() => {
+                        appState.currentUser = {
+                            id: 'user123',
+                            name: name,
+                            email: email,
+                            plan: 'free'
+                        };
+                        document.getElementById('auth-modal').classList.remove('active');
+                        document.getElementById('user-menu').style.display = 'flex';
+                        document.getElementById('auth-buttons').style.display = 'none';
+                        document.querySelector('.user-avatar').textContent = name.split(' ').map(n => n[0]).join('');
+                        showLoading(false);
+                        showNotification("Account created successfully!");
+                    }, 1500);
+                }
+            });
+            
+            // Logout
+            document.getElementById('logout-btn').addEventListener('click', async (e) => {
+                e.preventDefault();
+                appState.currentUser = null;
+                document.getElementById('user-menu').style.display = 'none';
+                document.getElementById('auth-buttons').style.display = 'block';
+                showNotification("You have been signed out");
+            });
+            
+            // Preview site
+            document.getElementById('preview-site-btn').addEventListener('click', () => {
+                document.getElementById('preview-modal').classList.add('active');
+                document.getElementById('bio-link-url').textContent = `https://${appState.currentUser.name.toLowerCase().replace(' ', '')}.biomonetize.com`;
+            });
+            
+            document.getElementById('close-preview-modal').addEventListener('click', () => {
+                document.getElementById('preview-modal').classList.remove('active');
+            });
+            
+            // Copy link
+            document.getElementById('copy-link').addEventListener('click', () => {
+                const link = document.getElementById('bio-link-url').textContent;
+                navigator.clipboard.writeText(link);
+                
+                // Show feedback
+                const originalText = document.getElementById('copy-link').innerHTML;
+                document.getElementById('copy-link').innerHTML = '<i class="fas fa-check"></i> Copied!';
+                
+                setTimeout(() => {
+                    document.getElementById('copy-link').innerHTML = originalText;
+                }, 2000);
+                
+                showNotification("Link copied to clipboard");
+            });
+            
+            // Test payment flow
+            document.getElementById('test-payment').addEventListener('click', () => {
+                openPaymentModal("Cinematic Presets Pack", 19.99);
+            });
+            
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('test-payment-btn')) {
+                    const linkId = e.target.dataset.linkId;
+                    const link = appState.bioLink.links.find(l => l.id === linkId);
+                    if (link) {
+                        const price = parseFloat(link.price.replace('$', ''));
+                        openPaymentModal(link.title, price);
+                    }
+                }
+            });
+            
+            // Payment amount selection
+            document.querySelectorAll('.amount-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.amount-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    option.classList.add('selected');
+                    
+                    const amount = option.dataset.amount;
+                    document.getElementById('payment-amount').textContent = amount;
+                });
+            });
+            
+            // Custom amount input
+            document.getElementById('custom-amount').addEventListener('input', function() {
+                if (this.value) {
+                    document.querySelectorAll('.amount-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    document.getElementById('payment-amount').textContent = parseFloat(this.value).toFixed(2);
+                }
+            });
+            
+            // Submit payment
+            document.getElementById('submit-payment').addEventListener('click', async () => {
+                const amount = parseFloat(document.getElementById('payment-amount').textContent);
+                const email = document.getElementById('payment-email').value;
+                
+                if (amount > 0 && email) {
+                    showLoading(true);
+                    try {
+                        // Create payment intent
+                        const response = await fetch('/api/payment/create-intent', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            },
+                            body: JSON.stringify({
+                                amount: amount * 100, // Convert to cents
+                                description: document.getElementById('payment-item').textContent,
+                                metadata: {
+                                    productId: 'presets-pack',
+                                    userId: appState.currentUser?.id || 'guest'
+                                }
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (!response.ok) throw new Error(data.message);
+                        
+                        // Confirm payment with Stripe
+                        const result = await stripe.confirmCardPayment(data.clientSecret, {
+                            payment_method: {
+                                card: cardElement,
+                                billing_details: {
+                                    email: email
+                                }
+                            }
+                        });
+                        
+                        if (result.error) {
+                            throw new Error(result.error.message);
+                        }
+                        
+                        // Success
+                        document.getElementById('payment-form-container').style.display = 'none';
+                        document.getElementById('payment-success').style.display = 'block';
+                        
+                        // Update analytics
+                        appState.bioLink.analytics.earnings += amount;
+                        
+                        // Update dashboard earnings
+                        document.querySelector('.stat-value:nth-child(3)').textContent = 
+                            `$${appState.bioLink.analytics.earnings.toFixed(2)}`;
+                        
+                        showLoading(false);
+                        showNotification("Payment successful!");
+                    } catch (err) {
+                        showNotification("Payment failed: " + err.message, true);
+                        showLoading(false);
+                    }
+                }
+            });
+            
+            // Close payment success
+            document.getElementById('close-payment-success').addEventListener('click', () => {
+                document.getElementById('payment-modal').classList.remove('active');
+                document.getElementById('payment-form-container').style.display = 'block';
+                document.getElementById('payment-success').style.display = 'none';
+            });
+            
+            // Save site
+            document.getElementById('save-site').addEventListener('click', async () => {
+                if (!appState.currentUser) {
+                    showNotification("Please sign in to save", true);
+                    return;
+                }
+                
+                showLoading(true);
+                try {
+                    // Simulate saving
+                    setTimeout(() => {
+                        appState.bioLink.status = "draft";
+                        showLoading(false);
+                        showNotification("Bio link saved as draft");
+                    }, 1000);
+                } catch (error) {
+                    showNotification("Error saving: " + error.message, true);
+                    showLoading(false);
+                }
+            });
+            
+            // Publish site
+            document.getElementById('publish-site').addEventListener('click', async () => {
+                if (!appState.currentUser) {
+                    showNotification("Please sign in to publish", true);
+                    return;
+                }
+                
+                showLoading(true);
+                try {
+                    // Simulate publishing
+                    setTimeout(() => {
+                        appState.bioLink.status = "published";
+                        
+                        // Add to sites list
+                        const newSite = {
+                            id: 'site' + Date.now(),
+                            title: appState.bioLink.title,
+                            url: `${appState.currentUser.name.toLowerCase().replace(' ', '')}.biomonetize.com`,
+                            createdAt: new Date().toLocaleDateString(),
+                            status: "published",
+                            views: 0,
+                            clicks: 0,
+                            earnings: 0
+                        };
+                        
+                        appState.sites.push(newSite);
+                        showLoading(false);
+                        showNotification("Bio link published successfully!");
+                        document.getElementById('preview-modal').classList.add('active');
+                    }, 1500);
+                } catch (error) {
+                    showNotification("Publishing failed: " + error.message, true);
+                    showLoading(false);
+                }
+            });
+            
+            // Go premium
+            document.getElementById('go-premium').addEventListener('click', () => {
+                openPaymentModal("Pro Creator Plan", 9);
+            });
+            
+            // Start free trial
+            document.getElementById('start-trial').addEventListener('click', async () => {
+                if (!appState.currentUser) {
+                    document.getElementById('auth-modal').classList.add('active');
+                    return;
+                }
+                
+                showLoading(true);
+                try {
+                    // Simulate upgrading
+                    setTimeout(() => {
+                        appState.currentUser.plan = 'pro-trial';
+                        showLoading(false);
+                        showNotification("Pro Creator trial activated! Enjoy premium features for 14 days.");
+                    }, 1000);
+                } catch (error) {
+                    showNotification("Error activating trial: " + error.message, true);
+                    showLoading(false);
+                }
+            });
+            
+            // Copy referral link
+            document.getElementById('copy-referral').addEventListener('click', () => {
+                const link = document.getElementById('referral-link').value;
+                navigator.clipboard.writeText(link);
+                showNotification("Referral link copied to clipboard");
+            });
+            
+            // Export analytics
+            document.getElementById('export-analytics').addEventListener('click', () => {
+                showNotification("Analytics data exported as CSV");
+            });
+            
+            // Manage domains
+            document.getElementById('manage-domains').addEventListener('click', () => {
+                document.getElementById('domain-modal').classList.add('active');
+            });
+            
+            document.getElementById('close-domain-modal').addEventListener('click', () => {
+                document.getElementById('domain-modal').classList.remove('active');
+            });
+        }
+
+        function openPaymentModal(itemName, amount) {
+            document.getElementById('payment-modal').classList.add('active');
+            document.getElementById('payment-item').textContent = itemName;
+            document.getElementById('payment-amount').textContent = amount.toFixed(2);
+        }
+
+        // Animation and navigation setup
+        function setupScrollAnimations() {
+            const fadeElements = document.querySelectorAll('.fade-in');
+            
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('appear');
+                    }
+                });
+            }, {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            });
+            
+            fadeElements.forEach(element => {
+                observer.observe(element);
+            });
+            
+            // Scroll to top button
+            const scrollTopBtn = document.querySelector('.scroll-top');
+            
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 500) {
+                    scrollTopBtn.classList.add('active');
+                } else {
+                    scrollTopBtn.classList.remove('active');
+                }
+            });
+            
+            scrollTopBtn.addEventListener('click', () => {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+        }
+
+        function setupNavigation() {
+            // Mobile menu toggle
+            const mobileToggle = document.querySelector('.mobile-toggle');
+            const navLinks = document.querySelector('.nav-links');
+            
+            mobileToggle.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+                mobileToggle.querySelector('i').classList.toggle('fa-bars');
+                mobileToggle.querySelector('i').classList.toggle('fa-times');
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    // Close mobile menu if open
+                    navLinks.classList.remove('active');
+                    mobileToggle.querySelector('i').classList.add('fa-bars');
+                    mobileToggle.querySelector('i').classList.remove('fa-times');
+                    
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+            
+            // Sticky header
+            window.addEventListener('scroll', () => {
+                const header = document.querySelector('header');
+                if (window.scrollY > 100) {
+                    header.style.boxShadow = '0 5px 20px rgba(0,0,0,0.1)';
+                    header.style.padding = '10px 0';
+                } else {
+                    header.style.boxShadow = '0 2px 15px rgba(0,0,0,0.05)';
+                    header.style.padding = '20px 0';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
